@@ -30,12 +30,12 @@ Hack machine code has two types of instructions: 'A' and 'C'.
 - Proceeding 2 bits are ignored.
 - `a`-bit and the 6 `c`-bits represent the computation to be executed.
 
-![table of instructions](https://imgur.com/a/4V2XiXn)
+![table of instructions](https://i.imgur.com/8U5JMeG.png)
 
 Destination bits (`d1`, `d2` & `d3`)
 
-![destination table](https://imgur.com/a/BXtrF18)
+![destination table](https://i.imgur.com/VBOmxBu.png)
 
 Jump bits (`j1`, `j2`, `j3`)
 
-![jump table](https://imgur.com/a/GzdEGQ9)
+![jump table](https://i.imgur.com/XWf6hSo.png)
