@@ -1,6 +1,8 @@
 #include "util.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // e.g. char** lines; int num_lines = read_lines(handle, &lines);
 char** readlines(FILE* handle, int* length) {

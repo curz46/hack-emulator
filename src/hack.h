@@ -1,5 +1,5 @@
-#ifndef EMULATOR__GUARD_H
-#define EMULATOR__GUARD_H
+#ifndef HACK__GUARD_H
+#define HACK__GUARD_H
 
 /**
  * Evaluate the provided program. A return value of 0 means the program
