@@ -2,6 +2,11 @@
 
 This program takes Hack machine code as input and executes it.
 
+### TODO
+
+- [ ] Variables should be `> 1024` not `< 1024`
+- [ ] Bug: interpreting zero-byte (presumably EOF) as A-instruction
+
 ### Instruction Set
 
 Hack machine code has two types of instructions: 'A' and 'C'.

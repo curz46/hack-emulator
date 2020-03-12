@@ -24,7 +24,7 @@
     ((i >> 1) & 0x1) == j2 && \
     ((i >> 2) & 0x1) == j1 )
 
-#define DEBUG_LEVEL 3
+#define DEBUG_LEVEL 1
 
 #define DEBUG(level, args...) DEBUG##level(args)
 
@@ -135,14 +135,14 @@ int store_dest(program_t* program, word_t inst, word_t out) {
         // do nothing
     } else if (DEST_EQ(inst,0,0,1)) {
         DEBUG(3, "c M=%i\n", out);
-        DEBUG(3, "c memory[%i]=%i\n", program->A, out);
+        DEBUG(1, "c memory[%i]=%i\n", program->A, out);
         program->memory[program->A] = out;
     } else if (DEST_EQ(inst,0,1,0)) {
         DEBUG(3, "c D=%i\n", out);
         program->D = out;
     } else if (DEST_EQ(inst,0,1,1)) {
         DEBUG(3, "c M,D=%i\n", out);
-        DEBUG(3, "c memory[%i]=%i\n", program->A, out);
+        DEBUG(1, "c memory[%i]=%i\n", program->A, out);
         program->memory[program->A] = out;
         program->D = out;
     } else if (DEST_EQ(inst,1,0,0)) {
@@ -154,7 +154,7 @@ int store_dest(program_t* program, word_t inst, word_t out) {
         program->D = out;
     } else if (DEST_EQ(inst,1,1,1)) {
         DEBUG(3, "c M,D,A=%i\n", out);
-        DEBUG(3, "c memory[%i]=%i\n", program->A, out);
+        DEBUG(1, "c memory[%i]=%i\n", program->A, out);
         program->memory[program->A] = out;
         program->A = out;
         program->D = out;
@@ -167,6 +167,7 @@ int store_dest(program_t* program, word_t inst, word_t out) {
 
 // -1 = bad instruction, 0 = don't jump, 1 = jump
 int should_jump(program_t* program, word_t inst, word_t out) {
+    //printf("jump bits = %i,%i,%i\n", (inst >> 2) & 0x1, (inst >> 1) & 0x1, inst & 0x1);
     if (JUMP_EQ(inst,0,0,0)) {
         DEBUG(3, " JMP 0\n");
         return 0;
@@ -207,7 +208,7 @@ int evaluate_program(char** lines, int length) {
     for (int i = 0; i < length; i++) {
         program.instructions[i] = strtol(lines[i], NULL, 2);
     }
-    DEBUG(2, "Loaded %i instructions.\n");
+    DEBUG(1, "Loaded %i instructions.\n", program.length);
 
     // assume execute at n=0
     word_t n = 0; // current line
@@ -217,7 +218,9 @@ int evaluate_program(char** lines, int length) {
             return -1;
         }
 
+        DEBUG(2, "n=%i A=%i M=%i D=%i\n", n, program.A, program.memory[program.A], program.D);
         word_t inst = program.instructions[n];
+
         if (get_type(inst) == 0) { // A-type
             word_t address = inst & 0x7FFF;
             DEBUG(3, "a A=%i\n", address);
@@ -236,6 +239,7 @@ int evaluate_program(char** lines, int length) {
                 DEBUG(1, "ERROR: bad instruction: %i\n", inst);
                 return -1;
             }
+            result = should_jump(&program, inst, out);
             if (result == -1) {
                 DEBUG(1, "ERROR: bad instruction: %i\n", inst);
                 return -1;
@@ -246,8 +250,6 @@ int evaluate_program(char** lines, int length) {
                 n++;
             }
         }
-
-        DEBUG(2, "n=%i A=%i M=%i D=%i\n", n, program.A, program.memory[program.A], program.D);
     }
 
     return 0;
