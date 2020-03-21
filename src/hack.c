@@ -1,10 +1,9 @@
 #include "hack.h"
+#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-
-#define VARIABLE_MEMORY 1024
 
 #define C_BITS_EQ(i, c1, c2, c3, c4, c5, c6) ( \
     ((i >> 6 ) & 0x1) == c6 && \
@@ -13,6 +12,8 @@
     ((i >> 9 ) & 0x1) == c3 && \
     ((i >> 10) & 0x1) == c2 && \
     ((i >> 11) & 0x1) == c1 )
+
+// xxx a c1 c2 c3 c4 c5 c6 xxxxxx
 
 #define DEST_EQ(i, d1, d2, d3) ( \
     ((i >> 3) & 0x1) == d3 && \
@@ -44,16 +45,14 @@
     #define DEBUG1(args...)
 #endif
 
-typedef int16_t word_t;
-
-typedef struct program_t {
-    // 16-bit registers
-    word_t A;
-    word_t D;
-    word_t memory[VARIABLE_MEMORY];
-    word_t* instructions;
-    int length;
-} program_t;
+char* itobin(word_t n, int len) {
+    char* str = (char*) malloc((len+1) * sizeof(char));
+    for (int i = len-1; i >= 0; i--) {
+        str[(len-1)-i] = ((n >> i) & 0x1) ? '1' : '0';
+    }
+    str[len] = '\0';
+    return str;
+}
 
 int get_type(word_t instruction) {
     return instruction >> 15;
@@ -197,10 +196,13 @@ int should_jump(program_t* program, word_t inst, word_t out) {
     }
 }
 
-int evaluate_program(char** lines, int length) {
+program_t read_program(FILE* file) {
+    int length;
+    char** lines = readlines(file, &length);
+
     program_t program;
     // zero-out memory
-    for (int i = 0; i < VARIABLE_MEMORY; i++) {
+    for (int i = 0; i < ALLOCATED_MEMORY; i++) {
         program.memory[i] = 0;
     }
     program.instructions = (word_t*) malloc(sizeof(word_t) * length);
@@ -209,7 +211,10 @@ int evaluate_program(char** lines, int length) {
         program.instructions[i] = strtol(lines[i], NULL, 2);
     }
     DEBUG(1, "Loaded %i instructions.\n", program.length);
+    return program;
+}
 
+int evaluate_program(program_t program) {
     // assume execute at n=0
     word_t n = 0; // current line
     while (1) {
@@ -231,17 +236,17 @@ int evaluate_program(char** lines, int length) {
             int result;
             result = evaluate_comp(&program, inst, &out);
             if (result == -1) {
-                DEBUG(1, "ERROR: bad instruction: %i\n", inst);
+                DEBUG(1, "ERROR: bad instruction: %s\n", itobin(inst, 16));
                 return -1; 
             }
             result = store_dest(&program, inst, out);
             if (result == -1) {
-                DEBUG(1, "ERROR: bad instruction: %i\n", inst);
+                DEBUG(1, "ERROR: bad instruction: %s\n", itobin(inst, 16));
                 return -1;
             }
             result = should_jump(&program, inst, out);
             if (result == -1) {
-                DEBUG(1, "ERROR: bad instruction: %i\n", inst);
+                DEBUG(1, "ERROR: bad instruction: %s\n", itobin(inst, 16));
                 return -1;
             }
             if (result == 1) { // should jump

@@ -12,10 +12,8 @@ int main(int argc, char **argv) {
     char* filename = argv[1];
     FILE* file = fopen(filename, "r");
 
-    int length;
-    char** lines = readlines(file, &length);
-
-    evaluate_program(lines, length);
+    program_t program = read_program(file);
+    evaluate_program(program);
 
     return 0;
 }

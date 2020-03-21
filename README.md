@@ -4,8 +4,9 @@ This program takes Hack machine code as input and executes it.
 
 ### TODO
 
-- [ ] Variables should be `> 1024` not `< 1024`
-- [ ] Bug: interpreting zero-byte (presumably EOF) as A-instruction
+- [x] Variables should be `> 1024` not `< 1024`
+- [ ] Create window for screen using github.com/emoon/minifb if --screen
+      option is given
 
 ### Instruction Set
 
